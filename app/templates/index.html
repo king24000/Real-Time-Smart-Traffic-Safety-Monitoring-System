@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Traffic & Helmet Safety Monitor</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="glow-bg"></div>
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fa-solid fa-traffic-light icon-pulse"></i>
+                <h1>TRAFFIC<span>SENTRY AI</span></h1>
+            </div>
+            <div class="status-badge" id="system-status">
+                <span class="dot live"></span> SYSTEM ACTIVE
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- SECTION 1: UPLOAD SCREEN -->
+            <section id="upload-section" class="dashboard-panel active">
+                <div class="panel-header">
+                    <h2>Upload Traffic Footage</h2>
+                    <p>Submit video files to identify helmet wearing violations and track safety metrics.</p>
+                </div>
+                
+                <input type="file" id="video-file-input" accept="video/mp4, video/avi, video/quicktime, video/x-matroska" style="display: block; width: 0; height: 0; opacity: 0; position: absolute;">
+                <div class="upload-dropzone" id="dropzone">
+                    <div class="dropzone-content">
+                        <div class="icon-box">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <h3>Drag & drop video here</h3>
+                        <p>Supports MP4, AVI, MOV, MKV (Max 100MB)</p>
+                        <span class="btn-primary">Browse Files</span>
+                    </div>
+                </div>
+                
+                <div class="demo-tips">
+                    <div class="tip-card">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <h4>AI Safety Agent</h4>
+                        <p>Runs YOLOv8n to identify riders and double-checks for helmets with a trained best.pt model.</p>
+                    </div>
+                    <div class="tip-card">
+                        <i class="fa-solid fa-bolt"></i>
+                        <h4>Two-Step Optimization</h4>
+                        <p>Crops region-of-interest and runs target-only scans for high framerate, lag-free processing.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: PROCESSING SCREEN -->
+            <section id="processing-section" class="dashboard-panel">
+                <div class="panel-header">
+                    <h2>Processing Video</h2>
+                    <p id="processing-subtitle">Analyzing frame-by-frame with neural networks...</p>
+                </div>
+                
+                <div class="processing-layout">
+                    <!-- Left: Progress Info -->
+                    <div class="progress-container">
+                        <div class="progress-radial-wrapper">
+                            <svg class="progress-ring" width="160" height="160">
+                                <circle class="progress-ring__circle-bg" stroke="#1d263b" stroke-width="8" fill="transparent" r="70" cx="80" cy="80"/>
+                                <circle class="progress-ring__circle" id="progress-circle" stroke="url(#gradient)" stroke-width="8" fill="transparent" r="70" cx="80" cy="80"/>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#4facfe" />
+                                        <stop offset="100%" stop-color="#00f2fe" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="progress-text">
+                                <span id="progress-percent">0%</span>
+                                <label>Analyzing</label>
+                            </div>
+                        </div>
+                        <div class="progress-metrics">
+                            <div class="metric-row">
+                                <span>Frames Processed</span>
+                                <strong id="metric-frames">0 / 0</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Status</span>
+                                <strong class="badge-status yellow" id="task-state">Analyzing</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Live Detections Metrics -->
+                    <div class="live-stats-container">
+                        <h3>Detections Count (Peak)</h3>
+                        <div class="stats-mini-grid">
+                            <div class="stat-card blue">
+                                <div class="stat-icon"><i class="fa-solid fa-user"></i></div>
+                                <div class="stat-details">
+                                    <h4 id="live-stat-persons">0</h4>
+                                    <p>Persons</p>
+                                </div>
+                            </div>
+                            <div class="stat-card green">
+                                <div class="stat-icon"><i class="fa-solid fa-helmet-safety"></i></div>
+                                <div class="stat-details">
+                                    <h4 id="live-stat-helmets">0</h4>
+                                    <p>Helmets</p>
+                                </div>
+                            </div>
+                            <div class="stat-card red">
+                                <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                <div class="stat-details">
+                                    <h4 id="live-stat-violations">0</h4>
+                                    <p>Violations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: RESULTS SCREEN -->
+            <section id="results-section" class="dashboard-panel">
+                <div class="panel-header-row">
+                    <div class="panel-header">
+                        <h2>Safety Report & Footage</h2>
+                        <p>Detections mapped out with high confidence overlays.</p>
+                    </div>
+                    <button class="btn-outline" id="btn-restart"><i class="fa-solid fa-rotate-left"></i> Process New Video</button>
+                </div>
+                
+                <!-- Main Grid: Video Player + Safety Stats -->
+                <div class="results-layout">
+                    <!-- Video Area -->
+                    <div class="video-display-panel">
+                        <div class="video-wrapper">
+                            <video id="processed-video-player" controls preload="auto">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <div class="video-actions">
+                            <a href="#" class="btn-primary" id="btn-download-video" download><i class="fa-solid fa-download"></i> Download Processed Video</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Reports & Compliance stats -->
+                    <div class="report-panel">
+                        <h3>Compliance Diagnostics</h3>
+                        
+                        <!-- Circular compliance progress gauge -->
+                        <div class="compliance-gauge">
+                            <div class="compliance-score">
+                                <span id="compliance-percentage">0%</span>
+                                <label>Safety compliance</label>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-summary-list">
+                            <div class="summary-item">
+                                <div class="label"><i class="fa-solid fa-users text-blue"></i> Total Persons Scan</div>
+                                <div class="value" id="res-total-persons">0</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label"><i class="fa-solid fa-helmet-safety text-green"></i> Helmets Worn (Safe)</div>
+                                <div class="value" id="res-total-helmets">0</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label"><i class="fa-solid fa-triangle-exclamation text-red animate-pulse"></i> Helmet Violations (No Helmet)</div>
+                                <div class="value text-red" id="res-total-violations">0</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Alert Card based on safety rating -->
+                        <div class="alert-box" id="compliance-verdict">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div class="alert-text">
+                                <h4>Excellent Compliance</h4>
+                                <p>Standard road safety precautions met.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Traffic Sentry AI &copy; 2026. Built with FastAPI and Ultralytics YOLOv8.</p>
+        </footer>
+    </div>
+    <!-- Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
